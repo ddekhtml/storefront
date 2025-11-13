@@ -1,6 +1,4 @@
 from django.contrib import admin
-
-# Register your models here.
 from django.contrib.contenttypes.admin import GenericTabularInline
 from store.admin import ProductAdmin
 from store.models import Product
