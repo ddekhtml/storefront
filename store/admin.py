@@ -71,8 +71,9 @@ class CollectionAdmin(admin.ModelAdmin):
         return super().get_queryset(request).annotate(product_count = Count("product"))
 @admin.register(Customer)
 class CustomerAdmin(admin.ModelAdmin):
-    list_display =["full_name", "email","membership"]
+    list_display =["first_name", "last_name","membership"]
     ordering = ["membership"]
+    list_select_related=["user"]
     search_fields =["first_name__istartswith", "last_name__istartswith"]
     @admin.display(ordering=["full_name", "membership"])
     def full_name(self, customer):
