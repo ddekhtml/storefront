@@ -42,6 +42,9 @@ class Customer(models.Model):
 
     class Meta:
         ordering = ['user__first_name', 'user__last_name']
+        permissions=[
+            ('view_history', 'Can view history'),
+        ]
         
 
     @admin.display(ordering="user__first_name")
@@ -95,7 +98,7 @@ class Order(models.Model):
     payment_status= models.CharField(max_length=1, choices=PAYMENT_STATUS_CHOICES)
     customer = models.ForeignKey(Customer, on_delete=models.PROTECT)
     class Meta:
-        permissions=[
+        permissions=[ 
             ('cancel_order', "Can cancel order")
         ]
 

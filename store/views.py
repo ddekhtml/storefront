@@ -8,12 +8,39 @@ from rest_framework.response import Response
 from rest_framework.mixins import ListModelMixin, CreateModelMixin, UpdateModelMixin, DestroyModelMixin, RetrieveModelMixin
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.views import APIView
+from rest_framework.decorators import action
+from rest_framework.permissions import AllowAny, IsAuthenticated, DjangoModelPermissions
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
 from django_filters.rest_framework import DjangoFilterBackend
-from .serializers import ProductSerializer, CollectionSerializer, ReviewSerializer, CartSerializer, CartItemsSerializer, AddCartItemSerializer, UpdateCartItemSerializer
-from .models import Product, Collection, OrderItems, Review, Cart, CartItems
+from .serializers import ProductSerializer, CollectionSerializer, ReviewSerializer, CartSerializer, CartItemsSerializer, AddCartItemSerializer, UpdateCartItemSerializer, CustomerSerializer
+from .models import Product, Collection, OrderItems, Review, Cart, CartItems, Customer
 from .filters import ProductFilter
 from .pagination import DefaultPagination
+from .permissions import IsAdminOrReadOnly, FullDjangoModelPermissions, ViewHistoryPermissions
+
+
+class CustomerViewSet(ModelViewSet):
+    queryset= Customer.objects.all()
+    serializer_class= CustomerSerializer
+    permission_classes= [FullDjangoModelPermissions]
+    @action(detail=True, permission_classes=[ViewHistoryPermissions])
+    def history(self, request, pk):
+        return Response("ok")
+    # def get_permissions(self):
+    #     if self.request.method =='GET':
+    #         return [AllowAny()]
+    #     return [FullDjangoModelPermissions()]
+    @action(detail=False, methods=['GET', 'PUT'], permission_classes=[IsAuthenticated])
+    def me(self, request):
+        (customer, created) = Customer.objects.get_or_create(user_id=request.user.id)
+        if request.method =='GET':
+            serializer = CustomerSerializer(customer)
+            return Response(serializer.data)
+        elif request.method=='PUT':
+            serializer= CustomerSerializer(customer,data=request.data)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data)
 
 class CartItemViewSet(ModelViewSet):
     lookup_field= 'pk'
@@ -47,6 +74,7 @@ class ProductViewSet(ModelViewSet):
     # pagination_class= DefaultPagination
     filterset_class = ProductFilter 
     search_fields= ["title", "description"]
+    permission_classes=[IsAdminOrReadOnly]
 
     # def get_queryset(self):
     #     queryset= Product.objects.select_related("collection").all()
@@ -70,6 +98,7 @@ class ProductViewSet(ModelViewSet):
 class CollectionViewSet(ModelViewSet):
     queryset= Collection.objects.annotate(product_count =Count("product")).all()
     serializer_class= CollectionSerializer
+    permission_classes=[IsAdminOrReadOnly]
     def destroy(self, request, *args, **kwargs):
         if Product.objects.filter(collection_id= kwargs["pk"]).count()>0:
             return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
