@@ -3,17 +3,30 @@ from django.db import transaction
 from rest_framework import serializers
 from decimal import Decimal
 from .models import Collection, Product, Review, Cart, CartItems, Customer, Order, OrderItems
+from .signals import order_created
+
+class UpdateOrderSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=Order
+        fields = ["payment_status"]
+        
 
 class CreateOrderSerializer(serializers.Serializer):
     cart_id = serializers.UUIDField()
-
+    def validate_cart_id(self, cart_id):
+        if Cart.objects.filter(pk=cart_id).exists():
+            raise serializers.ValidationError('No cart with given ID was found')
+        if CartItems.objects.filter(cart_id= cart_id).count()==0:
+            raise serializers.ValidationError('The cart is empty')
+        return cart_id
+    
     def save(self, **kwargs):
         with transaction.atomic():
             cart_id = self.validated_data['cart_id']
             user_id = self.context['user_id']
             # print(self.validated_data['cart_id'])
             # print(self.context['user_id'])
-            (customer_id, created)= Customer.objects.get_or_create(user_id= user_id)
+            customer_id= Customer.objects.get(user_id= user_id)
             order = Order.objects.create(customer=customer_id)
             cart_items = CartItems.objects.\
                 select_related('product').\
@@ -28,6 +41,8 @@ class CreateOrderSerializer(serializers.Serializer):
             ]
             OrderItems.objects.bulk_create(order_items)
             Cart.objects.filter(pk=cart_id).delete()
+            order_created.send_robust(self.__class__, order=order)
+            return order
             
 
 class SimpleProductSerializer(serializers.ModelSerializer):
