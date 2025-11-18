@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models  import Collection, Product, Customer, Address, Cart, Order, OrderItems
+from .models  import Collection, Product, Customer, Address, Cart, Order, OrderItems, ProductImage
 from django.db.models import Count
 from django.utils.html import format_html
 from django.urls import reverse
@@ -26,6 +26,15 @@ class InvetoryFilter(admin.SimpleListFilter):
         elif self.value()=='<25':
             return queryset.filter(inventory__range=(11,24))
 
+class ProductImageInline(admin.TabularInline):
+    model = ProductImage
+    readonly_fields=['thumbnail']
+
+    def thumbnail(self, instance):
+        if instance.image.name != '':
+            return format_html(f'<img src="{instance.image.url}" class="thumbnail">')
+        return ''
+
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
     fields= ["title", "slug", "description", "price" ,"inventory", "last_update", "collection", "promotion"]
@@ -40,6 +49,7 @@ class ProductAdmin(admin.ModelAdmin):
     list_editable = ['price']
     ordering = ["title", "collection"]
     list_select_related = ["collection"]
+    inlines=[ProductImageInline]
     list_filter = ["collection", "last_update", InvetoryFilter]
     def collection_title(self, product):
         return product.collection.title
@@ -56,6 +66,10 @@ class ProductAdmin(admin.ModelAdmin):
         updated_count= queryset.update(inventory= 10)
         self.message_user(request, f"{updated_count} has changed")
         
+    class Media:
+        css = {
+            "all": ["store/styles.css"]
+        } 
 @admin.register(Collection)
 class CollectionAdmin(admin.ModelAdmin):
     list_display= ["title", "product_count"]

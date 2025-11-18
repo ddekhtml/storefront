@@ -12,8 +12,8 @@ from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAuthenticated, DjangoModelPermissions, IsAdminUser
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
 from django_filters.rest_framework import DjangoFilterBackend
-from .serializers import ProductSerializer, CollectionSerializer, ReviewSerializer, CartSerializer, CartItemsSerializer, AddCartItemSerializer, UpdateCartItemSerializer, CustomerSerializer, OrderItemsSerializer, OrderSerializer, CreateOrderSerializer, UpdateOrderSerializer
-from .models import Product, Collection, OrderItems, Review, Cart, CartItems, Customer, Order
+from .serializers import ProductSerializer, CollectionSerializer, ReviewSerializer, CartSerializer, CartItemsSerializer, AddCartItemSerializer, UpdateCartItemSerializer, CustomerSerializer, OrderItemsSerializer, OrderSerializer, CreateOrderSerializer, UpdateOrderSerializer, ProductImageSerializer
+from .models import Product, Collection, OrderItems, Review, Cart, CartItems, Customer, Order, ProductImage
 from .filters import ProductFilter
 from .pagination import DefaultPagination
 from .permissions import IsAdminOrReadOnly, FullDjangoModelPermissions, ViewHistoryPermissions
@@ -97,9 +97,16 @@ class CartViewSet(CreateModelMixin,
     serializer_class = CartSerializer
     lookup_field="id"
 
-
+class ProductImageViewSet(ModelViewSet):
+    serializer_class= ProductImageSerializer
+    lookup_field="pk"
+    def get_queryset(self):
+        return ProductImage.objects.filter(product_id= self.kwargs['product_pk'])
+    def get_serializer_context(self):
+        return {"product_id": self.kwargs["product_pk"]}
+    
 class ProductViewSet(ModelViewSet):
-    queryset= Product.objects.select_related("collection").all()
+    queryset= Product.objects.prefetch_related('images').select_related("collection").all()
     serializer_class = ProductSerializer 
     lookup_field="pk"
     filter_backends =[DjangoFilterBackend, SearchFilter]
