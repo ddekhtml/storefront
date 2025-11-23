@@ -4,7 +4,6 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-django = "*"
 mysqlclient = "*"
 django-debug-toolbar = "*"
 djangorestframework = "*"
@@ -21,9 +20,13 @@ django-mail-templated = "*"
 redis = "*"
 celery = "*"
 flower = "*"
+django = "*"
 
 [dev-packages]
 pytest = "*"
+pytest-django = "*"
+pytest-watch = "*"
+model-bakery = "*"
 
 [requires]
 python_version = "3.13"
