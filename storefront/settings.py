@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'djoser',
     'django_filters',
+    'corsheaders',
     'store', 
     'like',
     'tags', 
@@ -50,6 +51,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
     'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -136,7 +138,9 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = 'static/'
-
+STATICFILES_DIRS = [
+    BASE_DIR / 'static'
+] 
 MEDIA_URL ="/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
@@ -165,3 +169,8 @@ DJOSER = {
         'current_user': 'core.serializers.UserSerializer'
         }
 }
+
+
+CORS_ALLOWED_ORIGINS =[
+    'http://localhost:8001'
+]

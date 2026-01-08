@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.contenttypes.admin import GenericTabularInline
-from store.admin import ProductAdmin
+from store.admin import ProductAdmin, ProductImageInline
 from store.models import Product
 from tags.models import TaggedItem
 from .models import User
@@ -21,7 +21,7 @@ class TaggedItemInline(GenericTabularInline):
     model = TaggedItem
 
 class CustomProductAdmin(ProductAdmin):
-    inlines = [TaggedItemInline] 
+    inlines = [TaggedItemInline, ProductImageInline] 
 
 admin.site.unregister(Product)              # ❌ lepas admin default
 admin.site.register(Product, CustomProductAdmin)   # ✅ pasang admin baru
