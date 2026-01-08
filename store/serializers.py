@@ -2,7 +2,7 @@ from django.db.models import Count, Sum
 from django.db import transaction
 from rest_framework import serializers
 from decimal import Decimal
-from .models import Collection, Product, Review, Cart, CartItems, Customer, Order, OrderItems
+from .models import Collection, Product, Review, Cart, CartItems, Customer, Order, OrderItems, ProductImage
 from .signals import order_created
 
 class UpdateOrderSerializer(serializers.ModelSerializer):
@@ -10,6 +10,13 @@ class UpdateOrderSerializer(serializers.ModelSerializer):
         model=Order
         fields = ["payment_status"]
         
+class ProductImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model= ProductImage
+        fields = ['id', 'image']
+    def create(self, validated_data):
+        product_id = self.context["product_id"]
+        return ProductImage.objects.create(product_id=product_id, **validated_data)
 
 class CreateOrderSerializer(serializers.Serializer):
     cart_id = serializers.UUIDField()
@@ -74,9 +81,10 @@ class CollectionSerializer(serializers.ModelSerializer):
         fields = ["id", "title", "product_count"]
     
 class ProductSerializer(serializers.ModelSerializer):
+    images= ProductImageSerializer(many=True, read_only=True)
     class Meta:
         model = Product
-        fields = ['id', 'title','description', 'slug', 'inventory', 'price_with_tax', 'price', 'collection']
+        fields = ['id', 'title','description', 'slug', 'inventory', 'price_with_tax', 'price', 'collection', 'images']
     price_with_tax = serializers.SerializerMethodField(method_name="price_tax")
     # collection= serializers.HyperlinkedRelatedField(
     #     queryset=Collection.objects.all(), 
@@ -152,6 +160,7 @@ class CartSerializer(serializers.ModelSerializer):
     class Meta:
         model= Cart
         fields = ["id", "items", "total_price"]
+
 # class ProductSerializer(serializers.Serializer):
 #     id = serializers.IntegerField()
 #     title = serializers.CharField(max_length = 255)
