@@ -47,7 +47,8 @@ INSTALLED_APPS = [
     'store', 
     'like',
     'tags', 
-    'core'
+    'core', 
+    'playground'
 ]
 
 MIDDLEWARE = [
@@ -173,4 +174,16 @@ DJOSER = {
 
 CORS_ALLOWED_ORIGINS =[
     'http://localhost:8001'
+]
+
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'localhost'
+EMAIL_HOST_USER= ' '
+EMAIL_HOST_PASSWORD = ''
+EMAIL_PORT = 2525
+DEFAULT_FROM_EMAIL = 'from@dedebuy.com'
+
+ADMINS=[
+    ('Dede Cantik', 'dedeaulad10@gmail.com')
 ]
