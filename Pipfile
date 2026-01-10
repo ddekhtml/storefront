@@ -15,6 +15,9 @@ djoser = "*"
 djangorestframework-simplejwt = "*"
 pillow = "*"
 django-cors-headers = "*"
+redis = "*"
+celery = "*"
+flower = "*"
 
 [dev-packages]
 
