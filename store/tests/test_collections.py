@@ -14,8 +14,10 @@ class TestRetrueveCollection:
        assert response.data =={
            'id' : collection.id, 
            'title' : collection.title, 
-           'products_count': collection.products_count
+           'product_count': 0
        }
+       print(response.data)
+       print(collection.__dict__)
 
 # @pytest.fixture
 # def create_collection(api_client):
