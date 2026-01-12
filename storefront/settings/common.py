@@ -17,19 +17,15 @@ from celery.schedules import crontab
 
 load_dotenv()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-mon4lmap30&tc9@+!6%l^)yp&yx5(vd+sn^=2%f&jx9!_p!j&e'
-
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
 
-ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -58,6 +54,7 @@ MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
     'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -144,10 +141,11 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = 'static/'
-STATICFILES_DIRS = [
-    BASE_DIR / 'static'
-] 
+STATIC_URL = '/static/'
+STATIC_ROOT= os.path.join(BASE_DIR, 'static')
+# STATICFILES_DIRS = [
+#     BASE_DIR / 'static'
+# ] 
 MEDIA_URL ="/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
@@ -211,6 +209,33 @@ CACHES = {
         'TIMEOUT':10*60,
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    }
+}
+
+LOGGING = {
+    'version': 1, 
+    'disable_existing_loggers': False, 
+    'handlers': {
+        'console': {
+            'class' : 'logging.StreamHandler'
+        }, 
+        'file': {
+            'class': 'logging.FileHandler', 
+            'filename': 'general.log', 
+            'formatter': 'verbose'
+        }
+    }, 
+    'loggers': {
+        '': {
+            'handlers': ['console','file'], 
+            'level': 'INFO'
+        }
+    }, 
+    'formatters': {
+        'verbose': {
+            'format': '{asctime} ({levelname}) - {name} - {message}', 
+            'style': '{'
         }
     }
 }

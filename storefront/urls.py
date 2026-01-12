@@ -12,7 +12,8 @@ urlpatterns = [
     path('store/', include('store.urls')),
     path('admin/', admin.site.urls),
     path('hello/', include('playground.urls')),
-    path('__debug__', include(debug_toolbar.urls))
+    path('__debug__', include(debug_toolbar.urls)), 
+    path('', include('core.urls'))
 ]
 
 if settings.DEBUG:
